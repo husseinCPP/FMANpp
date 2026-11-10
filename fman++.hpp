@@ -15,7 +15,7 @@ inline constexpr std::string_view BLUE = "\033[34m";
 
 namespace Setting {};
 namespace Fman {
-char FMAN(const std::string_view color) {
+inline void FMAN(const std::string_view color) {
     const std::vector<std::array<std::string, 1>> Banner = {
         {"\t\tFile_Manager_C++"},
         {"| ████████╗+ ██╗    ██╗\\  ███████╗* ██╗   ██║!"},
@@ -28,9 +28,7 @@ char FMAN(const std::string_view color) {
     std::print("{}", color);
     for(const auto &line : Banner) {
         std::println("{}", line[0]);
-    }   
-     std::println(resetcolor);
-    return 0;
+    } std::println(resetcolor);
   }
 };
 namespace Varbs {

@@ -3,25 +3,30 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream>
 
 namespace FMAN_STD {
    using std::cin;
    using std::cout;
    using std::cerr;
    using std::endl;
+   using std::println;
+   using std::print;
+
    using std::string;
    using std::vector;
    using std::array; 
+
    using std::ofstream;
    using std::ifstream;
+
 };
 namespace fs = std::filesystem;
 using namespace FMAN_STD;
 
-   ofstream w_file; // write
    ifstream r_file; // read 
    ofstream out_file; //output file
-   ifstream in_file; //input file
+
 
 class Operations {
 private:
@@ -37,21 +42,25 @@ private:
 /*****************************************************/
 public:
    string Fname;
-   char make_f() {
-      w_file.open(Fname);
-      if(!w_file.is_open()) {
-         cerr << RED<<"[!] Error: " << resetcolor<<"Can`t create the file!\n";
-      } else {
-         cout << GREEN<<"[+] fileCreate... Finished\n" << resetcolor;
-         w_file.close();
+   bool make_file(const fs::path& path) {
+      ofstream w_file(path);
+      if(!w_file) {
+         println(stderr,"{}[!] Error: Can`t create the file{}", RED, resetcolor);
+         return false;
       }
-      return 0;
+      println("{}[+] fileCreation... Completed.{}", GREEN, resetcolor);
+      return true;
    }
-   char make_F() {
-      
-      return 0;
-   }
-   char copy_fF(const fs::path& from, const fs::path& to) { 
+    bool make_dir(const fs::path& path) {
+        std::error_code ec;
+        if (!fs::create_directories(path, ec) && ec) {
+            println(stderr, "{}[!] Error: Can`t create the folder{}", RED, ec.message(), resetcolor);
+            return false;
+        }
+        println("{}[+] Directory created{}", GREEN, resetcolor);
+        return true;
+    }
+   bool copy_fF(const fs::path& from, const fs::path& to) { 
       if(1 == 1) {
          cerr << RED<<"[!] Error: ";
       }
@@ -60,18 +69,16 @@ public:
       }
       return 0;
    }
-   char move_fF(const fs::path& from, const fs::path& to) {
+   bool move_fF(const fs::path& from, const fs::path& to) {
       return 0;
    }
-   char remove_fF() {
+   bool remove_fF() {
       return 0;
    }  
 };
-/*
-class Cli {
+/*class Cli {
 public:
-};
-*/
+};*/
 char help() {
    cout << YELLOW << "\t\t===COMMANDS===\n";
    cout << GREEN<< " mk" << resetcolor<<"\t-- to make file or folder.\n";
@@ -82,33 +89,23 @@ char help() {
 }
 
 int main(){
-   Fman::FMAN(YELLOW);
+   Fman::FMAN(GREEN);
    
-   Operations term;
+   Operations ops;
 
    string cmd;
-   for(int i = 0; i <= 10; i++) {
-      cout << " > ";
-      cin >> cmd;
-      if(cmd == "mk") {
-         term.make_f();
-      }
-      else if(cmd == "cp") {
-         term.copy_fF("/tmp","/mnt");
-      }
-      else if(cmd == "mv") {      
-         term.move_fF("/tmp","/mnt");
-      }
-      else if(cmd == "rm") {
-         term.remove_fF();
-      }
-      else if(cmd == "help" || cmd == "?"|| cmd == "^[[A") {
-         help();
-      }
+   
+   while(print(" > "), getline(cin, cmd)) {
+
+      if(cmd == "q" || cmd == "quit") break;
+      if(cmd == "mk") ops.make_file("/tmp");
+      else if(cmd == "cp") ops.copy_fF("/tmp","/mnt");
+      else if(cmd == "mv") ops.move_fF("/tmp","/mnt");
+      else if(cmd == "rm") ops.remove_fF();
+      else if(cmd == "help" || cmd == "?") help();
       else {
-        cerr << RED<<"[!] Error: " << resetcolor<<"unknown command.\n";
-        cout << "\ttype " << BLUE<<"\"help / ?\""
-             << resetcolor<<" to see commands list.\n";
+         println(stderr, "{}[!] Error:{} {} {} is unknown command.", RED, YELLOW, cmd, resetcolor);
+         println("\tType: {}\"help or ?\"{} to see commands list.", BLUE, resetcolor);
       }
    }
    return 0;
